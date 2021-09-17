@@ -40,7 +40,7 @@ wss.on('connection', function connection(client){
 
 	console.log(`Client ${client.id} Connected!`)
 
-	playersData[""+client.id] = {id: client.id, position: {xPos: 0, yPos: 0, zPos: 0, xRot: 0, yRot: 0, zRot: 0}}
+	playersData[""+client.id] = {id: client.id, position: {xPos: 0, yPos: 0, zPos: 0, xRot: 0, yRot: 0, zRot: 0, stale: false}}
 	var currentClient = playersData[""+client.id]
 
 	client.isAlive = true;
@@ -54,7 +54,7 @@ wss.on('connection', function connection(client){
 	client.on('message', (data) => {
 		var dataJSON = JSON.parse(data)
 
-		playersData[dataJSON.id].position = {xPos: dataJSON.xPos, yPos: dataJSON.yPos, zPos: dataJSON.zPos, xRot: dataJSON.xRot, yRot: dataJSON.yRot, zRot: dataJSON.zRot}
+		playersData[dataJSON.id].position = {xPos: dataJSON.xPos, yPos: dataJSON.yPos, zPos: dataJSON.zPos, xRot: dataJSON.xRot, yRot: dataJSON.yRot, zRot: dataJSON.zRot, stale: false}
 		console.log(playersData[dataJSON.id].position)
 
 		var tempPlayersData = Object.assign({}, {}, playersData)
