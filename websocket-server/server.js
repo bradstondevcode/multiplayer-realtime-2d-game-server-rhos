@@ -28,7 +28,7 @@ wss.on('connection', function connection(client){
 	console.log(`Client ${client.id} Connected!`)
 
 	//Add default data to new connected client (player) data
-	playersData[""+client.id] = {id: client.id, position: {xPos: 0, yPos: 0, zPos: 0, xRot: 0, yRot: 0, zRot: 0, timestamp: 0.0, sprinting: false, swingAxe: false, stale: false}}
+	playersData[""+client.id] = {id: client.id, position: {xPos: 0, yPos: 0, zPos: 0, xRot: 0, yRot: 0, zRot: 0, timestamp: 0.0, sprinting: false, swingAxe: false, movementSpeed: 0, stale: false}}
 	
 	var currentClient = playersData[""+client.id]
 
@@ -36,13 +36,13 @@ wss.on('connection', function connection(client){
 	client.isAlive = true;
 
 	//Send default client data back to client for reference
-	client.send(`{"id": "${client.id}", "xPos": ${currentClient.position.xPos}, "yPos": ${currentClient.position.yPos}, "zPos": ${currentClient.position.zPos}, "xRot": ${currentClient.position.xRot}, "yRot": ${currentClient.position.yRot}, "zRot": ${currentClient.position.zRot}, "timestamp": ${currentClient.position.timestamp}, "sprinting": ${false}, "swingAxe": ${false}, "stale": ${false} }`)
+	client.send(`{"id": "${client.id}", "xPos": ${currentClient.position.xPos}, "yPos": ${currentClient.position.yPos}, "zPos": ${currentClient.position.zPos}, "xRot": ${currentClient.position.xRot}, "yRot": ${currentClient.position.yRot}, "zRot": ${currentClient.position.zRot}, "timestamp": ${currentClient.position.timestamp}, "sprinting": ${false}, "swingAxe": ${false}, "movementSpeed": ${currentClient.position.movementSpeed},  "stale": ${false} }`)
 
 
 	client.on('message', (data) => {
 		var dataJSON = JSON.parse(data)
 
-		playersData[dataJSON.id].position = {xPos: dataJSON.xPos, yPos: dataJSON.yPos, zPos: dataJSON.zPos, xRot: dataJSON.xRot, yRot: dataJSON.yRot, zRot: dataJSON.zRot, timestamp: dataJSON.timestamp, sprinting: dataJSON.sprinting, swingAxe: dataJSON.swingAxe,  stale: false}
+		playersData[dataJSON.id].position = {xPos: dataJSON.xPos, yPos: dataJSON.yPos, zPos: dataJSON.zPos, xRot: dataJSON.xRot, yRot: dataJSON.yRot, zRot: dataJSON.zRot, timestamp: dataJSON.timestamp, sprinting: dataJSON.sprinting, swingAxe: dataJSON.swingAxe, movementSpeed: dataJSON.movementSpeed,  stale: false}
 		console.log(playersData[dataJSON.id].position)
 
 		var tempPlayersData = Object.assign({}, {}, playersData)
