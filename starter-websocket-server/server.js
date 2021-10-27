@@ -32,13 +32,10 @@ wss.on('connection', function connection(client){
 	
 	var currentClient = playersData[""+client.id]
 
-	//NOT CURRENTLY USED
-	client.isAlive = true;
-
 	//Send default client data back to client for reference
 	client.send(`{"id": "${client.id}", "xPos": ${currentClient.position.xPos}, "yPos": ${currentClient.position.yPos}, "zPos": ${currentClient.position.zPos}, "xRot": ${currentClient.position.xRot}, "yRot": ${currentClient.position.yRot}, "zRot": ${currentClient.position.zRot}, "timestamp": ${currentClient.position.timestamp}, "sprinting": ${false}, "movementSpeed": ${currentClient.position.movementSpeed},  "stale": ${false} }`)
 
-
+	//Receives messages from client
 	client.on('message', (data) => {
 		var dataJSON = JSON.parse(data)
 
@@ -57,7 +54,7 @@ wss.on('connection', function connection(client){
 		client.send(JSON.stringify(tempPlayersData))
 	})
 
-	//Message sent when Client disconnevts from server
+	//Message sent when Client disconnects from server
 	client.on('close', () => {
 		console.log('This Connection Closed!')
 
