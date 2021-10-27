@@ -30,6 +30,7 @@ wss.on('connection', function connection(client){
 	//Add default data to new connected client (player) data
 	playersData[""+client.id] = {id: client.id, position: {xPos: 0, yPos: 0, zPos: 0, xRot: 0, yRot: 0, zRot: 0, timestamp: 0.0, sprinting: false, movementSpeed: 0, stale: false}}
 	
+	//Set current client based on ID
 	var currentClient = playersData[""+client.id]
 
 	//Send default client data back to client for reference
