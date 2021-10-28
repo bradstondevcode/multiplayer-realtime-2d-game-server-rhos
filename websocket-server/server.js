@@ -70,7 +70,7 @@ wss.on('connection', function connection(client){
 
 		}
 		else {
-			playersData[dataJSON.id].position = {xPos: dataJSON.xPos, yPos: dataJSON.yPos, zPos: dataJSON.zPos, xRot: dataJSON.xRot, yRot: dataJSON.yRot, zRot: dataJSON.zRot, timestamp: dataJSON.timestamp, sprinting: dataJSON.sprinting, movementSpeed: dataJSON.movementSpeed,  stale: false}
+			playersData[dataJSON.id].position = {xPos: dataJSON.xPos, yPos: dataJSON.yPos, zPos: dataJSON.zPos, xRot: dataJSON.xRot, yRot: dataJSON.yRot, zRot: dataJSON.zRot, timestamp: dataJSON.timestamp, sprinting: dataJSON.sprinting, swingAxe: dataJSON.swingAxe, movementSpeed: dataJSON.movementSpeed,  stale: false}
 			console.log(playersData[dataJSON.id].position)
 		
 		}
