@@ -1,5 +1,6 @@
 var uuid = require('uuid-random');
 const WebSocket = require('ws')
+const { uniqueNamesGenerator, adjectives, colors, animals, names } = require('unique-names-generator');
 
 const wss = new WebSocket.WebSocketServer({port:8080}, ()=> {
 	console.log('server started')
@@ -29,11 +30,15 @@ wss.on('connection', function connection(client){
 
 	//Create Unique User ID for player
 	client.id = uuid();
+	playerName = uniqueNamesGenerator({ dictionaries: [colors, animals], style: 'capital' });
+	playerName = playerName.replace(/_/g, " ")
+	
 
 	console.log(`Client ${client.id} Connected!`)
+	console.log(`Client name is ${playerName}!`)
 
 	//Add default data to new connected client (player) data
-	playersData[""+client.id] = {id: client.id, position: {xPos: 0, yPos: 0, zPos: 0, xRot: 0, yRot: 0, zRot: 0, timestamp: 0.0, sprinting: false, swingAxe: false, movementSpeed: 0, stale: false}}
+	playersData[""+client.id] = {id: client.id, position: {xPos: 0, yPos: 0, zPos: 0, xRot: 0, yRot: 0, zRot: 0, timestamp: 0.0, sprinting: false, swingAxe: false, movementSpeed: 0, stale: false, playerName: playerName}}
 	
 	var currentClient = playersData[""+client.id]
 
@@ -41,7 +46,7 @@ wss.on('connection', function connection(client){
 	client.isAlive = true;
 
 	//Send default client data back to client for reference
-	client.send(`{"id": "${client.id}", "xPos": ${currentClient.position.xPos}, "yPos": ${currentClient.position.yPos}, "zPos": ${currentClient.position.zPos}, "xRot": ${currentClient.position.xRot}, "yRot": ${currentClient.position.yRot}, "zRot": ${currentClient.position.zRot}, "timestamp": ${currentClient.position.timestamp}, "sprinting": ${false}, "swingAxe": ${false}, "movementSpeed": ${currentClient.position.movementSpeed},  "stale": ${false} }`)
+	client.send(`{"id": "${client.id}", "xPos": ${currentClient.position.xPos}, "yPos": ${currentClient.position.yPos}, "zPos": ${currentClient.position.zPos}, "xRot": ${currentClient.position.xRot}, "yRot": ${currentClient.position.yRot}, "zRot": ${currentClient.position.zRot}, "timestamp": ${currentClient.position.timestamp}, "sprinting": ${false}, "swingAxe": ${false}, "movementSpeed": ${currentClient.position.movementSpeed},  "stale": ${false},  "playerName": "${currentClient.position.playerName}" }`)
 
 
 	client.on('message', (data) => {
@@ -77,7 +82,7 @@ wss.on('connection', function connection(client){
 
 		}
 		else {
-			playersData[dataJSON.id].position = {xPos: dataJSON.xPos, yPos: dataJSON.yPos, zPos: dataJSON.zPos, xRot: dataJSON.xRot, yRot: dataJSON.yRot, zRot: dataJSON.zRot, timestamp: dataJSON.timestamp, sprinting: dataJSON.sprinting, swingAxe: dataJSON.swingAxe, movementSpeed: dataJSON.movementSpeed,  stale: false}
+			playersData[dataJSON.id].position = {xPos: dataJSON.xPos, yPos: dataJSON.yPos, zPos: dataJSON.zPos, xRot: dataJSON.xRot, yRot: dataJSON.yRot, zRot: dataJSON.zRot, timestamp: dataJSON.timestamp, sprinting: dataJSON.sprinting, swingAxe: dataJSON.swingAxe, movementSpeed: dataJSON.movementSpeed,  stale: false, playerName: dataJSON.playerName ? dataJSON.playerName : ""}
 			// console.log(playersData[dataJSON.id].position)
 		
 		}
