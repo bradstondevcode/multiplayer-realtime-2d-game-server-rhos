@@ -47,26 +47,53 @@ wss.on('connection', function connection(client){
 	client.on('message', (data) => {
 		var dataJSON = JSON.parse(data)
 
+		if(dataJSON["serverCommand"]){
+			console.log("Server Command Recieved")
+			console.log("=============")
+			console.log(dataJSON)
+			console.log("=============")
+
+			//Iterate over all clients and send them specified server
+			wss.broadcast(JSON.stringify(dataJSON))
+			
+			return;
+		}
+
 		if (dataJSON.objType) {
 			console.log("isSharedObj")
 			console.log(dataJSON)
 			wss.broadcast(JSON.stringify(dataJSON))
 			// client.send(JSON.stringify(dataJSON))
-		} else {
+
+			return
+		} 
+
+		if(dataJSON["spectator"]){
+			var spectatorID = dataJSON["id"]
+
+			if(playersData[spectatorID]){
+				delete playersData[spectatorID]
+			}
+
+		}
+		else {
 			playersData[dataJSON.id].position = {xPos: dataJSON.xPos, yPos: dataJSON.yPos, zPos: dataJSON.zPos, xRot: dataJSON.xRot, yRot: dataJSON.yRot, zRot: dataJSON.zRot, timestamp: dataJSON.timestamp, sprinting: dataJSON.sprinting, swingAxe: dataJSON.swingAxe, movementSpeed: dataJSON.movementSpeed,  stale: false}
 			// console.log(playersData[dataJSON.id].position)
-
-			var tempPlayersData = Object.assign({}, {}, playersData)
-
-			var keys = Object.keys(tempPlayersData)
-
-			//Remove "type" from keys array
-			keys = removeItemOnce(keys, "type")
-
-			tempPlayersData["playerIDs"] = keys
-			
-			client.send(JSON.stringify(tempPlayersData))
+		
 		}
+
+		var tempPlayersData = Object.assign({}, {}, playersData)
+
+		var keys = Object.keys(tempPlayersData)
+
+		//Remove "type" from keys array
+		keys = removeItemOnce(keys, "type")
+
+		tempPlayersData["playerIDs"] = keys
+		
+		client.send(JSON.stringify(tempPlayersData))
+
+
 	})
 
 	//Message sent when Client disconnevts from server
