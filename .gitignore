@@ -13,7 +13,7 @@
 /react-multiplayer-app/node_modules
 /react-multiplayer-app/build
 /websocket-server/node_modules
-/websocket-server/e6-websocket-server
+/e6-websocket-server/node_modules/
 
 # misc
 .DS_Store
