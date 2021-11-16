@@ -1,5 +1,6 @@
 var uuid = require('uuid-random');
 const WebSocket = require('ws')
+const { uniqueNamesGenerator, adjectives, colors, animals, names } = require('unique-names-generator');
 
 const wss = new WebSocket.WebSocketServer({port:8080}, ()=> {
 	console.log('server started')
@@ -24,11 +25,25 @@ wss.on('connection', function connection(client){
 
 	//Create Unique User ID for player
 	client.id = uuid();
+	playerName = uniqueNamesGenerator({ dictionaries: [colors, animals], style: 'capital' });
+	playerName = playerName.replace(/_/g, " ")
+
+	var numOfPlayers = Object.keys(playersData).length - 1
+
+	var playerColor = "White"
+
+	if(numOfPlayers <= 0){
+		playerColor = "Red"
+	} else if (numOfPlayers == 1){
+		playerColor = "Blue"
+	} else {
+		playerColor = "Green"
+	}
 
 	console.log(`Client ${client.id} Connected!`)
 
 	//Add default data to new connected client (player) data
-	playersData[""+client.id] = {id: client.id, position: {xPos: 0, yPos: 0, zPos: 0, xRot: 0, yRot: 0, zRot: 0, timestamp: 0.0, sprinting: false, movementSpeed: 0, stale: false}}
+	playersData[""+client.id] = {id: client.id, position: {xPos: 0, yPos: 0, zPos: 0, xRot: 0, yRot: 0, zRot: 0, timestamp: 0.0, sprinting: false, swingAxe: false, movementSpeed: 0, stale: false, playerName: playerName, playerColor: playerColor}}
 	
 	var currentClient = playersData[""+client.id]
 
@@ -36,21 +51,50 @@ wss.on('connection', function connection(client){
 	client.isAlive = true;
 
 	//Send default client data back to client for reference
-	client.send(`{"id": "${client.id}", "xPos": ${currentClient.position.xPos}, "yPos": ${currentClient.position.yPos}, "zPos": ${currentClient.position.zPos}, "xRot": ${currentClient.position.xRot}, "yRot": ${currentClient.position.yRot}, "zRot": ${currentClient.position.zRot}, "timestamp": ${currentClient.position.timestamp}, "sprinting": ${false}, "movementSpeed": ${currentClient.position.movementSpeed},  "stale": ${false} }`)
+	client.send(`{"id": "${client.id}", "playerName": "${playerName}", "playerColor": "${playerColor}" }`)
 
 
 	client.on('message', (data) => {
 		var dataJSON = JSON.parse(data)
-		// console.log(Object.keys(dataJSON))
 
-		var dataKeys = Object.keys(dataJSON)
+		if(dataJSON["serverCommand"]){
+			console.log("Server Command Recieved")
+			console.log("=============")
+			console.log(dataJSON)
+			console.log("=============")
 
-		dataKeys.forEach(key => {
-			playersData[dataJSON.id].position[key] = dataJSON[key]
-		});
+			//Iterate over all clients and send them specified server
+			wss.broadcast(JSON.stringify(dataJSON))
+			
+			return;
+		}
 
-		// playersData[dataJSON.id].position = {xPos: dataJSON.xPos, yPos: dataJSON.yPos, zPos: dataJSON.zPos, xRot: dataJSON.xRot, yRot: dataJSON.yRot, zRot: dataJSON.zRot, timestamp: dataJSON.timestamp, sprinting: dataJSON.sprinting, movementSpeed: dataJSON.movementSpeed,  stale: false}
-		console.log(playersData[dataJSON.id].position)
+		if (dataJSON.objType) {
+			console.log("isSharedObj")
+			console.log(dataJSON)
+			wss.broadcast(JSON.stringify(dataJSON))
+			// client.send(JSON.stringify(dataJSON))
+
+			return
+		} 
+
+		if(dataJSON["spectator"]){
+			var spectatorID = dataJSON["id"]
+
+			if(playersData[spectatorID]){
+				delete playersData[spectatorID]
+			}
+
+		}
+		else {
+			var dataKeys = Object.keys(dataJSON)
+
+			dataKeys.forEach(key => {
+				playersData[dataJSON.id].position[key] = dataJSON[key]
+			});
+			// console.log(playersData[dataJSON.id].position)
+		
+		}
 
 		var tempPlayersData = Object.assign({}, {}, playersData)
 
@@ -92,6 +136,11 @@ wss.on('listening', () => {
 	console.log('listening on 8080')
 })
 
+wss.broadcast = function broadcast(message) {
+	wss.clients.forEach(function each(cl) {
+		cl.send(message)
+	})
+}
 
 //=====UTILITY FUNCTIONS======
 
