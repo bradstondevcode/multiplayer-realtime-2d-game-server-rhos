@@ -30,15 +30,15 @@ wss.on('connection', function connection(client){
 
 	var numOfPlayers = Object.keys(playersData).length - 1
 
-	var playerColor = "White"
+	var playerColor = "None"
 
-	if(numOfPlayers <= 0){
-		playerColor = "Red"
-	} else if (numOfPlayers == 1){
-		playerColor = "Blue"
-	} else {
-		playerColor = "Green"
-	}
+	// if(numOfPlayers <= 0){
+	// 	playerColor = "Red"
+	// } else if (numOfPlayers == 1){
+	// 	playerColor = "Blue"
+	// } else {
+	// 	playerColor = "Green"
+	// }
 
 	console.log(`Client ${client.id} Connected!`)
 
